@@ -1,0 +1,425 @@
+{% extends 'src/layouts/master.html' %}
+
+<title>{{ title }} - {{ web_title }}</title>
+
+{% load static %}
+
+
+{% block styles %}
+{% endblock %}
+
+{% block content %}
+
+
+<style>
+    .status-green {
+        background-color: #C8F7C5;
+        color: #0e4d0e;
+    }
+    .status-yellow {
+        background-color: #FFF3C4;
+        color: #665c00;
+    }
+    .status-red {
+        background-color: #FFD6D6;
+        color: #8b0000;
+    }
+    .status-icon {
+        font-size: 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: white;
+        border-radius: 0.75rem;
+        width: 40px;
+        height: 40px;
+    }
+</style>
+
+<style>
+    .access-card {
+        background-color: #E8EAF6; /* Lavanda suave */
+        color: #283593; /* Azul oscuro artístico */
+    }
+
+    .access-icon {
+        background-color: #64B5F6; /* Azul cielo */
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+    }
+</style>
+
+<style>
+    .denied-card {
+        background-color: #FCE4EC; /* Rosa pastel suave */
+        color: #880E4F; /* Vino oscuro artístico */
+    }
+
+    .denied-icon {
+        background-color: #EC407A; /* Fucsia vivo */
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+    }
+</style>
+
+<style>
+    .event-card {
+        background-color: #FFE0E0; /* Coral pastel */
+        color: #B71C1C; /* Carmesí suave */
+    }
+
+    .event-icon {
+        background-color: #EF5350; /* Rojo vibrante */
+        color: white;
+        width: 50px;
+        height: 50px;
+        border-radius: 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+    }
+</style>
+<div class="page-heading">
+    <h3>Bienvenido {username}</h3>
+</div>
+<div class="page-content">
+    <section class="row">
+        <div class="col-12 col-lg-9">
+            <div class="row">
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div id="campus-card" class="card"> <!-- Color lo maneja JS -->
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="status-icon">
+                                        <i class="iconly-boldUser"></i> <!-- Ícono Bootstrap -->
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <h6 class="text-muted font-semibold">Personas en campus</h6>
+                                    <h6 id="campus-count" class="font-extrabold mb-0">0</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card access-card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                    <div class="access-icon">
+                                        <i class="iconly-boldProfile"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 d-flex flex-column justify-content-center">
+                                    <h6 class="text-muted font-semibold mb-1">Accesos hoy</h6>
+                                    <h6 class="font-extrabold mb-0">0</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card denied-card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                    <div class="denied-icon">
+                                        <i class="iconly-boldAdd-User"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 d-flex flex-column justify-content-center">
+                                    <h6 class="text-muted font-semibold mb-1">Accesos denegados</h6>
+                                    <h6 class="font-extrabold mb-0">0</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="card event-card">
+                        <div class="card-body px-3 py-4-5">
+                            <div class="row">
+                                <div class="col-md-4 d-flex align-items-center justify-content-center">
+                                    <div class="event-icon">
+                                        <i class="iconly-boldBookmark"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-8 d-flex flex-column justify-content-center">
+                                    <h6 class="text-muted font-semibold mb-1">Próximo evento</h6>
+                                    <h6 class="font-extrabold mb-0">09/08/2025</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Profile Visit</h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="chart-profile-visit"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12 col-xl-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Promedio de entrada</h4>
+                        </div>
+
+                        <!-- STYLE agregado aquí abajo -->
+                        <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                            <!-- Estudiantes -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <svg class="bi text-primary" width="32" height="32" fill="blue" style="width:10px">
+                                            <use xlink:href="{% static 'mazer/assets/vendors/bootstrap-icons/bootstrap-icons.svg' %}#circle-fill" />
+                                        </svg>
+                                        <h5 class="mb-0 ms-3">Estudiantes</h5>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0">PROMEDIO</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div id="chart-europe"></div>
+                                </div>
+                            </div>
+
+                            <!-- Docente -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <svg class="bi text-success" width="32" height="32" fill="blue" style="width:10px">
+                                            <use xlink:href="{% static 'mazer/assets/vendors/bootstrap-icons/bootstrap-icons.svg' %}#circle-fill" />
+                                        </svg>
+                                        <h5 class="mb-0 ms-3">Docente</h5>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0">PROMEDIO</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div id="chart-america"></div>
+                                </div>
+                            </div>
+
+                            <!-- Administrativo -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <svg class="bi text-danger" width="32" height="32" fill="blue" style="width:10px">
+                                            <use xlink:href="{% static 'mazer/assets/vendors/bootstrap-icons/bootstrap-icons.svg' %}#circle-fill" />
+                                        </svg>
+                                        <h5 class="mb-0 ms-3">Administrativo</h5>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0">PROMEDIO</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div id="chart-indonesia"></div>
+                                </div>
+                            </div>
+
+                            <!-- Visitantes -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <svg class="bi text-danger" width="32" height="32" fill="blue" style="width:10px">
+                                            <use xlink:href="{% static 'mazer/assets/vendors/bootstrap-icons/bootstrap-icons.svg' %}#circle-fill" />
+                                        </svg>
+                                        <h5 class="mb-0 ms-3">Visitantes</h5>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0">PROMEDIO</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div id="chart-africa"></div>
+                                </div>
+                            </div>
+
+                            <!-- Personal operativo -->
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <svg class="bi text-danger" width="32" height="32" fill="blue" style="width:10px">
+                                            <use xlink:href="{% static 'mazer/assets/vendors/bootstrap-icons/bootstrap-icons.svg' %}#circle-fill" />
+                                        </svg>
+                                        <h5 class="mb-0 ms-3">Personal operativo</h5>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <h5 class="mb-0">PROMEDIO</h5>
+                                </div>
+                                <div class="col-12">
+                                    <div id="chart-peru"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-xl-8">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4>Ultimos registros</h4>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-lg">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Comment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="col-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-md">
+                                                        <img src="{% static 'mazer/assets/images/faces/5.jpg' %}">
+                                                    </div>
+                                                    <p class="font-bold ms-3 mb-0">Si Cantik</p>
+                                                </div>
+                                            </td>
+                                            <td class="col-auto">
+                                                <p class=" mb-0">Congratulations on your graduation!</p>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="col-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="avatar avatar-md">
+                                                        <img src="{% static 'mazer/assets/images/faces/2.jpg' %}">
+                                                    </div>
+                                                    <p class="font-bold ms-3 mb-0">Si Ganteng</p>
+                                                </div>
+                                            </td>
+                                            <td class="col-auto">
+                                                <p class=" mb-0">Wow amazing design! Can you make another tutorial for
+                                                    this design?</p>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-3">
+            <div class="card">
+                <div class="card-body py-4 px-5">
+                    <div class="d-flex align-items-center">
+                        <div class="avatar avatar-xl">
+                            <img src="{% static 'mazer/assets/images/faces/1.jpg' %}" alt="Face 1">
+                        </div>
+                        <div class="ms-3 name">
+                            <h5 class="font-bold">{username}</h5>
+                            <h6 class="text-muted mb-0">{email.user}</h6>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recent Messages</h4>
+                </div>
+                <div class="card-content pb-4">
+                    <div class="recent-message d-flex px-4 py-3">
+                        <div class="avatar avatar-lg">
+                            <img src="{% static 'mazer/assets/images/faces/4.jpg' %}">
+                        </div>
+                        <div class="name ms-4">
+                            <h5 class="mb-1">Hank Schrader</h5>
+                            <h6 class="text-muted mb-0">@johnducky</h6>
+                        </div>
+                    </div>
+                    <div class="recent-message d-flex px-4 py-3">
+                        <div class="avatar avatar-lg">
+                            <img src="{% static 'mazer/assets/images/faces/5.jpg' %}">
+                        </div>
+                        <div class="name ms-4">
+                            <h5 class="mb-1">Dean Winchester</h5>
+                            <h6 class="text-muted mb-0">@imdean</h6>
+                        </div>
+                    </div>
+                    <div class="recent-message d-flex px-4 py-3">
+                        <div class="avatar avatar-lg">
+                            <img src="{% static 'mazer/assets/images/faces/1.jpg' %}">
+                        </div>
+                        <div class="name ms-4">
+                            <h5 class="mb-1">John Dodol</h5>
+                            <h6 class="text-muted mb-0">@dodoljohn</h6>
+                        </div>
+                    </div>
+                    <div class="px-4">
+                        <button class='btn btn-block btn-xl btn-light-primary font-bold mt-3'>Start
+                            Conversation</button>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h4>Calendario de visitas</h4>
+                </div>
+                <div class="card-body">
+                    <div id="chart-visitors-profile"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+
+    <script>
+    const cantidadPersonas = 900; // reemplaza con dato real
+
+    const card = document.getElementById("campus-card");
+    const count = document.getElementById("campus-count");
+
+    count.textContent = cantidadPersonas;
+
+    card.classList.remove("status-green", "status-yellow", "status-red");
+
+    if (cantidadPersonas <= 250) {
+        card.classList.add("status-green");
+    } else if (cantidadPersonas <= 500) {
+        card.classList.add("status-yellow");
+    } else {
+        card.classList.add("status-red");
+    }
+</script>
+
+
+
+{% endblock %}
+{% block js %}
+<script src="{% static 'mazer/assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
+<script src="{% static 'mazer/assets/static/js/pages/dashboard.js' %}"></script>
+{% endblock %}
