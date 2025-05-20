@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>DEBUG Handpose</title>
+<style>
+ body{text-align:center;font-family:sans-serif}
+ #wrap{position:relative;display:inline-block}
+ video,canvas{width:640px;height:480px;background:#000;border-radius:8px}
+ canvas{position:absolute;top:0;left:0;pointer-events:none}
+ #log{margin-top:1rem;font-weight:600}
+</style>
+</head>
+<body>
+<h2>¿Handpose detecta tu mano?</h2>
+<div id="wrap">
+  <video id="v" autoplay muted playsinline></video>
+  <canvas id="ov"></canvas>
+</div>
+<div id="log">Cargando…</div>
+
+<!-- TF-JS runtimes -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+<!-- Modelo Handpose -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/handpose"></script>
+
+<script>
+(async()=>{
+  const v  = document.getElementById('v');
+  const cv = document.getElementById('ov');
+  const ctx= cv.getContext('2d');
+  const log= document.getElementById('log');
+
+  /* 1. cámara */
+  try{
+    const s = await navigator.mediaDevices.getUserMedia({video:true});
+    v.srcObject=s; await v.play();
+  }catch(e){ log.textContent='❌ cámara'; return; }
+
+  /* 2. modelo */
+  const model = await handpose.load();
+  log.textContent='Modelo listo – mueve tu mano';
+
+  /* 3. loop */
+  async function loop(){
+    const h = await model.estimateHands(v,true);
+    ctx.clearRect(0,0,cv.width,cv.height);
+    if(h.length){
+      log.textContent=`Mano detectada (conf ${h[0].handInViewConfidence.toFixed(2)})`;
+      h[0].landmarks.forEach(([x,y])=>{
+        ctx.fillStyle='lime';
+        ctx.beginPath(); ctx.arc(x*640,y*480,4,0,2*Math.PI); ctx.fill();
+      });
+    }else{
+      log.textContent='🙌 Mano no detectada';
+    }
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>
