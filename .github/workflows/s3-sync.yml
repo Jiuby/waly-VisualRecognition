@@ -27,7 +27,7 @@ jobs:
           aws s3 rm s3://hackathon-facesiupb/faces/ --recursive || true
 
           echo "⬆️  Subiendo imágenes locales…"
-          aws s3 sync facialRecognition/faces/ s3://hackathon-faces/faces/ \
+          aws s3 sync facialRecognition/faces/ s3://hackathon-facesiupb/faces/ \
               --exclude "*" --include "*.jpg" --include "*.jpeg" --include "*.png"
 
           echo "✅  Sincronización completada"
