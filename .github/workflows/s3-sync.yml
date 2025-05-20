@@ -1,16 +1,25 @@
+name: S3 nightly sync
+on:
+  schedule:
+    - cron: '0 6 * * *'        # 06:00 UTC = 1 a. m. Colombia
+  workflow_dispatch:           # ← botón “Run workflow” en la UI
+
 jobs:
   upload:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: us-east-1          # tu región
+          aws-region: us-east-1
           aws-access-key-id:     ${{ secrets.AWS_ID }}
           aws-secret-access-key: ${{ secrets.AWS_KEY }}
 
-      # ahora cualquier comando aws-cli funciona:
-      - run: aws sts get-caller-identity
+      - run: sudo apt-get update -y && sudo apt-get install -y awscli
+
+      - name: Sync faces
+        run: |
+          aws s3 rm s3://hackathon-facesiupb/faces/ --recursive
+          aws s3 sync facialRecognition/faces/ s3://hackathon-faces/faces/ \
+              --exclude "*" --include "*.jpg" --include "*.png"
