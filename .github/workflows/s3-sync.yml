@@ -1,33 +1,37 @@
-name: Sync faces to S3 (nightly)
+.github/workflows/train-embeddings.yml
+# .github/workflows/train-embeddings.yml
+name: Daily Face-Embedding Training
 
 on:
-  # 01:00 Colombia (06:00 UTC)
   schedule:
-    - cron: '0 6 * * *'
-  workflow_dispatch:     # botón “Run workflow”
+    # A las 02:00 hora de Bogotá (UTC-5) → 07:00 UTC
+    - cron: '0 7 * * *'
 
 jobs:
-  upload:
+  train:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      # 1) Cargar credenciales AWS desde Secrets
-      - uses: aws-actions/configure-aws-credentials@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          aws-region: us-east-1                  # tu región
-          aws-access-key-id:     ${{ secrets.AWS_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_KEY }}
+          python-version: '3.8.10'
 
-      # 2) Sincronizar carpeta local → bucket S3
-      - name: Sync faces
+      - name: Install dependencies
         run: |
-          echo "🧹  Borrando prefijo faces/…"
-          aws s3 rm s3://hackathon-facesiupb/faces/ --recursive || true
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-          echo "⬆️  Subiendo imágenes locales…"
-          aws s3 sync facialRecognition/faces/ s3://hackathon-facesiupb/faces/ \
-              --exclude "*" --include "*.jpg" --include "*.jpeg" --include "*.png"
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-          echo "✅  Sincronización completada"
+      - name: Run embedding training script
+        run: |
+          python facialRecognition/entrenamiento_guardado.py
