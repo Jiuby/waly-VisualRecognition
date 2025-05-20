@@ -24,7 +24,7 @@ jobs:
       - name: Sync faces
         run: |
           echo "🧹  Borrando prefijo faces/…"
-          aws s3 rm s3://hackathon-faces/faces/ --recursive || true
+          aws s3 rm s3://hackathon-facesiupb/faces/ --recursive || true
 
           echo "⬆️  Subiendo imágenes locales…"
           aws s3 sync facialRecognition/faces/ s3://hackathon-faces/faces/ \
