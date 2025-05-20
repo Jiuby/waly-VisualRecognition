@@ -1,25 +1,33 @@
-name: S3 nightly sync
+name: Sync faces to S3 (nightly)
+
 on:
+  # 01:00 Colombia (06:00 UTC)
   schedule:
-    - cron: '0 6 * * *'        # 06:00 UTC = 1 a. m. Colombia
-  workflow_dispatch:           # ← botón “Run workflow” en la UI
+    - cron: '0 6 * * *'
+  workflow_dispatch:     # botón “Run workflow”
 
 jobs:
   upload:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
+      # 1) Cargar credenciales AWS desde Secrets
       - uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-region: us-east-1
+          aws-region: us-east-1                  # tu región
           aws-access-key-id:     ${{ secrets.AWS_ID }}
           aws-secret-access-key: ${{ secrets.AWS_KEY }}
 
-      - run: sudo apt-get update -y && sudo apt-get install -y awscli
-
+      # 2) Sincronizar carpeta local → bucket S3
       - name: Sync faces
         run: |
-          aws s3 rm s3://hackathon-facesiupb/faces/ --recursive
-          aws s3 sync facialRecognition/faces/ s3://hackathon-faces/faces/ \
-              --exclude "*" --include "*.jpg" --include "*.png"
+          echo "🧹  Borrando prefijo faces/…"
+          aws s3 rm s3://hackathon-facesiupb/faces/ --recursive || true
+
+          echo "⬆️  Subiendo imágenes locales…"
+          aws s3 sync facialRecognition/faces/ s3://hackathon-facesiupb/faces/ \
+              --exclude "*" --include "*.jpg" --include "*.jpeg" --include "*.png"
+
+          echo "✅  Sincronización completada"
