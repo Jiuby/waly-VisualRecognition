@@ -33,12 +33,13 @@ jobs:
           conda install -n regen-env -y -c conda-forge \
             dlib boto3 insightface scikit-learn opencv tqdm jupyter nbconvert
 
-      - name: Convert notebook to script
+      - name: Convert entrenamiento_guardados notebook to script
         run: |
           conda run -n regen-env jupyter nbconvert --to script \
-            facialRecognition/entrenamiento_guardado.ipynb --output entrenamiento_guardado
+            facialRecognition/entrenamiento_guardados.ipynb \
+            --output entrenamiento_guardados
 
-      - name: Run entrenamiento_guardado
+      - name: Run entrenamiento_guardados script
         run: |
           conda run -n regen-env python entrenamiento_guardados.py
 
