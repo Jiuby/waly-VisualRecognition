@@ -32,9 +32,11 @@ jobs:
       # ❺  Dependencias (dlib, insightface, etc.)
       - name: Install dependencies
         run: |
+          # paquetes de conda (dlib ya compilado, opencv, etc.)
           conda install -n regen-env -y -c conda-forge \
             dlib cmake boost-cpp \
-            boto3 scikit-learn opencv tqdm jupyter nbconvert
+            boto3 scikit-learn opencv tqdm jupyter nbconvert onnxruntime
+          # insightface via pip (después de onnxruntime)
           conda run -n regen-env pip install insightface
 
       # ❻  Convertir el notebook a script
