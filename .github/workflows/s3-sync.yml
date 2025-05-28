@@ -1,7 +1,6 @@
-# .github/workflows/regen_embeddings.yml
 name: Regenerar Embeddings
 
-# Ejecuta cada día a las 02:00 AM Bogotá (07:00 UTC) y permite disparo manual
+# ❶  Ejecuta cada día a las 02 AM Bogotá (07 UTC) + disparo manual
 on:
   schedule:
     - cron: '0 7 * * *'
@@ -9,8 +8,8 @@ on:
 
 jobs:
   regen:
-    runs-on: ubuntu-latest
-    env:
+    runs-on: ubuntu-latest           # runner estable
+    env:                             # ❷ credenciales AWS desde Secrets
       AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION:            ${{ secrets.AWS_REGION }}
@@ -18,31 +17,40 @@ jobs:
       S3_KEY:                ${{ secrets.S3_KEY }}
 
     steps:
+      # ❸  Trae el código
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Miniconda and Python 3.8.10
+      # ❹  Miniconda con Python 3.8.10
+      - name: Set up Miniconda (Py 3.8.10)
         uses: conda-incubator/setup-miniconda@v2
         with:
           python-version: '3.8.10'
           activate-environment: regen-env
           auto-activate-base: false
 
-      - name: Install dependencies via conda
+      # ❺  Dependencias (dlib, insightface, etc.)
+      - name: Install dependencies
         run: |
           conda install -n regen-env -y -c conda-forge \
-            dlib boto3 insightface scikit-learn opencv tqdm jupyter nbconvert
+            dlib cmake boost-cpp \
+            boto3 scikit-learn opencv tqdm jupyter nbconvert
+          conda run -n regen-env pip install insightface
 
-      - name: Convert entrenamiento_guardados notebook to script
+      # ❻  Convertir el notebook a script
+      - name: Convert entrenamiento_guardado.ipynb → .py
         run: |
           conda run -n regen-env jupyter nbconvert --to script \
-            facialRecognition/entrenamiento_guardados.ipynb \
-            --output entrenamiento_guardados
+            facialRecognition/entrenamiento_guardado.ipynb \
+            --output entrenamiento_guardado \
+            --output-dir facialRecognition
 
-      - name: Run entrenamiento_guardados script
+      # ❼  Ejecutar el script generado
+      - name: Run entrenamiento_guardado.py
         run: |
-          conda run -n regen-env python entrenamiento_guardados.py
+          conda run -n regen-env python facialRecognition/entrenamiento_guardado.py
 
+      # ❽  Verificar el pickle en S3
       - name: Verify upload to S3
         run: |
           aws s3 ls s3://$S3_BUCKET/$S3_KEY
