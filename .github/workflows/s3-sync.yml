@@ -1,7 +1,7 @@
 # .github/workflows/regen_embeddings.yml
 name: Regenerar Embeddings
 
-# Ejecuta cada día a las 02:00 AM Bogotá (07:00 UTC) y también permite disparo manual
+# Ejecuta cada día a las 02:00 AM Bogotá (07:00 UTC) y permite disparo manual
 on:
   schedule:
     - cron: '0 7 * * *'
@@ -9,7 +9,8 @@ on:
 
 jobs:
   regen:
-    runs-on: ubuntu-latest
+    # Usa Ubuntu 20.04 para que actions/setup-python@v4 pueda instalar Python 3.8.10
+    runs-on: ubuntu-20.04
     env:
       AWS_ACCESS_KEY_ID:     ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -21,7 +22,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install system dependencies for dlib
+      - name: Install OS dependencies for dlib
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake libboost-python-dev libboost-thread-dev
@@ -41,10 +42,10 @@ jobs:
         run: |
           jupyter nbconvert --to script facialRecognition/entrenamiento_guardado.ipynb --output entrenamiento_guardado
 
-      - name: Run embeddings regeneration
+      - name: Run entrenamiento_guardado
         run: |
           python entrenamiento_guardado.py
 
-      - name: Verify upload
+      - name: Verify upload to S3
         run: |
           aws s3 ls s3://$S3_BUCKET/$S3_KEY
