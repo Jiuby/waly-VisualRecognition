@@ -1,0 +1,33 @@
+/* Asegúrate de tener definidas estas variables en :root o en un archivo de variables CSS */
+:root {
+  --form-select-padding-y: 0.375rem;
+  --form-select-indicator-padding: 1.75rem;
+  --form-select-padding-x: 0.75rem;
+}
+
+/* Sin footer, no borde inferior */
+.dataTable-wrapper.no-footer .dataTable-container {
+  border-bottom: none;
+}
+
+/* Selector con padding usando las CSS custom properties */
+.dataTable-selector {
+  padding: var(--form-select-padding-y) var(--form-select-indicator-padding)
+           var(--form-select-padding-y) var(--form-select-padding-x);
+}
+
+/* Dropdown en línea y centrado verticalmente */
+.dataTable-dropdown {
+  display: inline-flex;
+  align-items: center;
+}
+
+.dataTable-dropdown label {
+  white-space: nowrap;
+  margin-left: 15px;
+}
+
+/* Enlace de página activa en paginación */
+.page-item.active .page-link {
+  color: #fff !important;
+}

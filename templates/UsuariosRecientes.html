@@ -1,0 +1,107 @@
+{% extends 'src/layouts/master.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-heading">
+  <div class="page-title">
+    <div class="row">
+      <div class="col-12 col-md-6 order-md-1 order-last">
+        <h3>Usuarios Recientes</h3>
+        <p class="text-subtitle text-muted">Accesos recientes mediante reconocimiento facial</p>
+      </div>
+      <div class="col-12 col-md-6 order-md-2 order-first">
+        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard/">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Usuarios Recientes</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <section class="section">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title">Tabla de accesos</h4>
+        <!-- Filtro por fecha y hora -->
+        <form method="get" class="d-flex">
+          <div class="me-2">
+            <label for="start" class="form-label mb-0">Desde:</label>
+            <input type="datetime-local" id="start" name="start" class="form-control form-control-sm" value="{{ request.GET.start }}">
+          </div>
+          <div class="me-2">
+            <label for="end" class="form-label mb-0">Hasta:</label>
+            <input type="datetime-local" id="end" name="end" class="form-control form-control-sm" value="{{ request.GET.end }}">
+          </div>
+          <button type="submit" class="btn btn-sm btn-primary align-self-end">Filtrar</button>
+        </form>
+      </div>
+      <div class="card-body">
+        <table class="table table-striped" id="recientesTable">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Nombre</th>
+              <th>Identificación</th>
+              <th>Rol</th>
+              <th>Fecha/Hora</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if usuarios %}
+              {% for u in usuarios %}
+              <tr>
+                <td>
+                  <img src="{{ u.foto_url }}"
+                       alt="{{ u.nombre }}"
+                       class="avatar-sm" />
+                </td>
+                <td>{{ u.nombre }} {{ u.apellido }}</td>
+                <td>{{ u.identificacion }}</td>
+                <td>{{ u.rol|capfirst }}</td>
+                <td>{{ u.timestamp }}</td>
+                <td>
+                  {% if u.status == 'activo' %}
+                    <span class="badge bg-success">Activo</span>
+                  {% else %}
+                    <span class="badge bg-danger">Inactivo</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" class="text-center">No hay registros de accesos recientes.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block styles %}
+    
+    <link rel="stylesheet" href="{% static 'assets/extensions/simple-datatables/style.css' %}">
+<style>
+  .avatar-sm{
+      width: 48px;
+      height: 48px;
+      object-fit: cover;   /* recorta sin deformar */
+      border-radius: 50%;  /* círculo agradable */
+  }
+</style>
+<link rel="stylesheet" href="{% static 'assets/extensions/simple-datatables/style.css' %}">
+{% endblock %}
+
+{% block js %}
+<script src="{% static 'assets/extensions/simple-datatables/umd/simple-datatables.js' %}"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    new simpleDatatables.DataTable("#recientesTable");
+  });
+</script>
+{% endblock %}

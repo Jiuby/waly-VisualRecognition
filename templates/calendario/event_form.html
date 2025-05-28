@@ -1,0 +1,140 @@
+{% extends 'src/layouts/master.html' %}
+{% load static %}
+
+{% block styles %}
+  <!-- Flatpickr CSS vía CDN -->
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+  >
+{% endblock %}
+
+{% block content %}
+<div class="page-heading">
+  <div class="page-title">
+    <div class="row">
+      <div class="col-12 col-md-6 order-md-1 order-last">
+        <h3>Nuevo evento</h3>
+        <p class="text-subtitle text-muted">Completa los detalles para crear tu evento.</p>
+      </div>
+      <div class="col-12 col-md-6 order-md-2 order-first">
+        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'calendario:calendario' %}">Calendario</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Nuevo evento</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="card mx-auto" style="max-width:700px;">
+    <div class="card-body">
+      <form method="post" action="{% url 'calendario:evento_crear' %}" class="form form-vertical">
+        {% csrf_token %}
+        <div class="row">
+
+          <!-- Fecha inline -->
+          <div class="col-12 mb-4">
+            <label for="id_fecha" class="form-label">Fecha del evento</label>
+            <input
+              type="text"
+              id="id_fecha"
+              name="fecha"
+              class="form-control"
+              placeholder="Selecciona fecha…"
+              readonly
+            >
+          </div>
+
+          <!-- Hora inicio -->
+          <div class="col-md-6 mb-3">
+            <label for="id_hora_inicio" class="form-label">Hora inicio</label>
+            <input
+              type="text"
+              id="id_hora_inicio"
+              name="hora_inicio"
+              class="form-control"
+              placeholder="HH:MM"
+              readonly
+            >
+          </div>
+
+          <!-- Hora fin -->
+          <div class="col-md-6 mb-3">
+            <label for="id_hora_fin" class="form-label">Hora fin</label>
+            <input
+              type="text"
+              id="id_hora_fin"
+              name="hora_fin"
+              class="form-control"
+              placeholder="HH:MM"
+              readonly
+            >
+          </div>
+
+          <!-- Motivo principal -->
+          <div class="col-12 mb-3">
+            <label for="id_titulo" class="form-label">Motivo del evento</label>
+            <input
+              type="text"
+              id="id_titulo"
+              name="titulo"
+              class="form-control"
+              placeholder="¿Por qué eliges este día?"
+            >
+          </div>
+
+          <!-- Descripción -->
+          <div class="col-12 mb-4">
+            <label for="id_descripcion" class="form-label">Descripción detallada</label>
+            <textarea
+              id="id_descripcion"
+              name="descripcion"
+              rows="4"
+              class="form-control"
+              placeholder="Agrega notas adicionales…"
+            ></textarea>
+          </div>
+
+          <!-- Botones -->
+          <div class="col-12 d-flex justify-content-end">
+            <button type="submit" class="btn btn-success me-2">Guardar</button>
+            <a href="{% url 'calendario:calendario' %}" class="btn btn-light-secondary">Cancelar</a>
+          </div>
+
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block js %}
+  <!-- Flatpickr JS vía CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      // Calendario siempre abierto (inline)
+      flatpickr("#id_fecha", {
+        inline: true,
+        dateFormat: "Y-m-d"
+      });
+      // Hora inicio y fin
+      flatpickr("#id_hora_inicio", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true
+      });
+      flatpickr("#id_hora_fin", {
+        enableTime: true,
+        noCalendar: true,
+        dateFormat: "H:i",
+        time_24hr: true
+      });
+    });
+  </script>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends 'src/layouts/master.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-heading" data-mode="{{ modo|default:'entrada' }}">
+
+  <h3>Cámara de entrada </h3>
+</div>
+<section class="section">
+  <div class="card border rounded shadow mx-auto" style="max-width:900px;">
+    <div class="card-body text-center">
+      <div class="ratio ratio-4x3 mx-auto">
+        <video id="video"
+               autoplay
+               muted
+               playsinline
+               class="w-100 h-100 bg-dark"
+               style="object-fit:cover;">
+        </video>
+      </div>
+      <p class="mt-2 text-muted">
+        Presiona <strong>ENTER</strong> para verificar tu rostro.
+      </p>
+    </div>
+    <div id="status-container"
+         class="alert alert-warning text-center mt-3"
+         style="max-width:600px; margin:0 auto;">
+      <span id="registro-status">Esperando ENTER…</span>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+  <script defer src="{% static 'mazer/assets/js/camara.js' %}"></script>
+{% endblock %}

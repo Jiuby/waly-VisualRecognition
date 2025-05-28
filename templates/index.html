@@ -93,28 +93,31 @@
     }
 </style>
 <div class="page-heading">
-    <h3>Bienvenido {username}</h3>
+    <h3>Bienvenido</h3>
 </div>
 <div class="page-content">
     <section class="row">
         <div class="col-12 col-lg-9">
             <div class="row">
-                <div class="col-6 col-lg-3 col-md-6">
-                    <div id="campus-card" class="card"> <!-- Color lo maneja JS -->
-                        <div class="card-body px-3 py-4-5">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="status-icon">
-                                        <i class="iconly-boldUser"></i> <!-- Ícono Bootstrap -->
-                                    </div>
-                                </div>
-                                <div class="col-md-8">
-                                    <h6 class="text-muted font-semibold">Personas en campus</h6>
-                                    <h6 id="campus-count" class="font-extrabold mb-0">0</h6>
-                                </div>
-                            </div>
+<div class="col-6 col-lg-3 col-md-6">
+  <div id="campus-card"
+       class="card {% if active_count <= 250 %}status-green
+                    {% elif active_count <= 500 %}status-yellow
+                    {% else %}status-red{% endif %}">
+                    <div class="card-body px-3 py-4-5">
+                      <div class="row">
+                        <div class="col-md-4">
+                          <div class="status-icon">
+                            <i class="iconly-boldUser"></i>
+                          </div>
                         </div>
+                        <div class="col-md-8">
+                          <h6 class="text-muted font-semibold">Personas activas</h6>
+                          <h6 class="font-extrabold mb-0">{{ active_count }}</h6>
+                        </div>
+                      </div>
                     </div>
+                  </div>
                 </div>
                 <div class="col-6 col-lg-3 col-md-6">
                     <div class="card access-card">
@@ -127,7 +130,7 @@
                                 </div>
                                 <div class="col-md-8 d-flex flex-column justify-content-center">
                                     <h6 class="text-muted font-semibold mb-1">Accesos hoy</h6>
-                                    <h6 class="font-extrabold mb-0">0</h6>
+                                    <h6 class="font-extrabold mb-0">{{ accesses_today }}</h6>
                                 </div>
                             </div>
                         </div>
@@ -143,8 +146,8 @@
                                     </div>
                                 </div>
                                 <div class="col-md-8 d-flex flex-column justify-content-center">
-                                    <h6 class="text-muted font-semibold mb-1">Accesos denegados</h6>
-                                    <h6 class="font-extrabold mb-0">0</h6>
+                                    <h6 class="text-muted font-semibold mb-1">Accesos no encontrados</h6>
+                                    <h6 class="font-extrabold mb-0">{{ unknown_today }}</h6>
                                 </div>
                             </div>
                         </div>
@@ -161,21 +164,9 @@
                                 </div>
                                 <div class="col-md-8 d-flex flex-column justify-content-center">
                                     <h6 class="text-muted font-semibold mb-1">Próximo evento</h6>
-                                    <h6 class="font-extrabold mb-0">09/08/2025</h6>
+                                    <h6 class="font-extrabold mb-0">{{ next_event_date }}</h6>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h4>Profile Visit</h4>
-                        </div>
-                        <div class="card-body">
-                            <div id="chart-profile-visit"></div>
                         </div>
                     </div>
                 </div>
@@ -200,7 +191,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <h5 class="mb-0">PROMEDIO</h5>
+                                    <h5 class="mb-0"></h5>
                                 </div>
                                 <div class="col-12">
                                     <div id="chart-europe"></div>
@@ -218,7 +209,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <h5 class="mb-0">PROMEDIO</h5>
+                                    <h5 class="mb-0"></h5>
                                 </div>
                                 <div class="col-12">
                                     <div id="chart-america"></div>
@@ -236,7 +227,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <h5 class="mb-0">PROMEDIO</h5>
+                                    <h5 class="mb-0"></h5>
                                 </div>
                                 <div class="col-12">
                                     <div id="chart-indonesia"></div>
@@ -254,7 +245,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <h5 class="mb-0">PROMEDIO</h5>
+                                    <h5 class="mb-0"></h5>
                                 </div>
                                 <div class="col-12">
                                     <div id="chart-africa"></div>
@@ -272,7 +263,7 @@
                                     </div>
                                 </div>
                                 <div class="col-6">
-                                    <h5 class="mb-0">PROMEDIO</h5>
+                                    <h5 class="mb-0"></h5>
                                 </div>
                                 <div class="col-12">
                                     <div id="chart-peru"></div>
@@ -284,112 +275,82 @@
 
                 <div class="col-12 col-xl-8">
                     <div class="card">
-                        <div class="card-header">
-                            <h4>Ultimos registros</h4>
+                      <div class="card-header"><h4>Últimos registros</h4></div>
+                      <div class="card-body">
+                        <div class="table-responsive">
+                          <table class="table table-hover table-lg mb-0">
+                            <thead>
+                              <tr>
+                                <th>Persona</th>
+                                <th>Rol</th>
+                                <th>Fecha/Hora</th>
+                                <th>Estado</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for l in last_logs %}
+                              <tr>
+                                <td class="col-4">
+                                  <div class="d-flex align-items-center">
+                                    <div class="avatar avatar-md me-3">
+                                      <img src="{{ l.foto }}" onerror="this.src='{% static 'mazer/assets/images/faces/1.jpg' %}'">
+                                    </div>
+                                    <p class="mb-0 fw-bold">{{ l.nombre|default:'—' }}</p>
+                                  </div>
+                                </td>
+                                <td class="col-2">{{ l.rol|capfirst }}</td>
+                                <td class="col-3">{{ l.ts }}</td>
+                                <td class="col-3">
+                                  {% if l.estado == 'Activo' %}
+                                    <span class="badge bg-success">{{ l.estado }}</span>
+                                  {% else %}
+                                    <span class="badge bg-danger">{{ l.estado }}</span>
+                                  {% endif %}
+                                </td>
+                              </tr>
+                              {% empty %}
+                              <tr><td colspan="4" class="text-center">Sin registros aún.</td></tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover table-lg">
-                                    <thead>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Comment</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{% static 'mazer/assets/images/faces/5.jpg' %}">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Cantik</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">Congratulations on your graduation!</p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="col-3">
-                                                <div class="d-flex align-items-center">
-                                                    <div class="avatar avatar-md">
-                                                        <img src="{% static 'mazer/assets/images/faces/2.jpg' %}">
-                                                    </div>
-                                                    <p class="font-bold ms-3 mb-0">Si Ganteng</p>
-                                                </div>
-                                            </td>
-                                            <td class="col-auto">
-                                                <p class=" mb-0">Wow amazing design! Can you make another tutorial for
-                                                    this design?</p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                      </div>
                     </div>
+
                 </div>
             </div>
         </div>
         <div class="col-12 col-lg-3">
             <div class="card">
-                <div class="card-body py-4 px-5">
-                    <div class="d-flex align-items-center">
-                        <div class="avatar avatar-xl">
-                            <img src="{% static 'mazer/assets/images/faces/1.jpg' %}" alt="Face 1">
-                        </div>
-                        <div class="ms-3 name">
-                            <h5 class="font-bold">{username}</h5>
-                            <h6 class="text-muted mb-0">{email.user}</h6>
-                        </div>
-                    </div>
+                <div class="card-header">
+                    <h4>Calendario</h4>
                 </div>
+                    <div class="card-content pb-4">
+                      {% if next_events %}
+                        {% for ev in next_events %}
+                        <div class="d-flex align-items-center px-4 py-3 border-bottom">
+                          <div class="avatar avatar-lg bg-primary text-white me-3 d-flex
+                                      align-items-center justify-content-center">
+                            <i class="bi bi-calendar-event" style="font-size:1.4rem"></i>
+                          </div>
+                          <div class="flex-grow-1">
+                            <h5 class="mb-1">{{ ev.titulo }}</h5>
+                            <h6 class="text-muted mb-0">{{ ev.fecha }} &bull; {{ ev.hora }}</h6>
+                          </div>
+                        </div>
+                        {% endfor %}
+                      {% else %}
+                        <p class="text-center my-4">No hay eventos próximos.</p>
+                      {% endif %}
+                    </div>
+
             </div>
             <div class="card">
                 <div class="card-header">
-                    <h4>Recent Messages</h4>
-                </div>
-                <div class="card-content pb-4">
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="{% static 'mazer/assets/images/faces/4.jpg' %}">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">Hank Schrader</h5>
-                            <h6 class="text-muted mb-0">@johnducky</h6>
-                        </div>
-                    </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="{% static 'mazer/assets/images/faces/5.jpg' %}">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">Dean Winchester</h5>
-                            <h6 class="text-muted mb-0">@imdean</h6>
-                        </div>
-                    </div>
-                    <div class="recent-message d-flex px-4 py-3">
-                        <div class="avatar avatar-lg">
-                            <img src="{% static 'mazer/assets/images/faces/1.jpg' %}">
-                        </div>
-                        <div class="name ms-4">
-                            <h5 class="mb-1">John Dodol</h5>
-                            <h6 class="text-muted mb-0">@dodoljohn</h6>
-                        </div>
-                    </div>
-                    <div class="px-4">
-                        <button class='btn btn-block btn-xl btn-light-primary font-bold mt-3'>Start
-                            Conversation</button>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <h4>Calendario de visitas</h4>
+                    <h4>Porcentaje de visitas</h4>
                 </div>
                 <div class="card-body">
-                    <div id="chart-visitors-profile"></div>
+                    <div id="chart-visitors-by-role"></div>
                 </div>
             </div>
         </div>
@@ -421,5 +382,28 @@
 {% endblock %}
 {% block js %}
 <script src="{% static 'mazer/assets/extensions/apexcharts/apexcharts.min.js' %}"></script>
+    <script>
+  // --- Donut: usuarios activos por rol ---
+  const data = JSON.parse('{{ roles_json|escapejs }}');
+
+  const optionsRoles = {
+      series: data.series,
+      labels: data.labels,
+      colors: ["#435ebe", "#55c6e8", "#f59e0b", "#ef4444", "#10b981"],
+      chart: {
+          type: "donut",
+          height: 350
+      },
+      legend: { position: "bottom" },
+      plotOptions: {
+          pie: { donut: { size: "35%" } }
+      }
+  };
+
+  new ApexCharts(
+      document.querySelector("#chart-visitors-by-role"),
+      optionsRoles
+  ).render();
+</script>
 <script src="{% static 'mazer/assets/static/js/pages/dashboard.js' %}"></script>
 {% endblock %}

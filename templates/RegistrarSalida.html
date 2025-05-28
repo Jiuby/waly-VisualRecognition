@@ -2,61 +2,30 @@
 {% load static %}
 
 {% block content %}
-<div class="page-heading">
-  <div class="page-title">
-    <div class="row">
-      <div class="col-12 col-md-6 order-md-1 order-last">
-        <h3>Cámara de entrada</h3>
+<div class="page-heading" data-mode="salida">
+  <h3>Cámara de salida </h3>
+</div>
+<section class="section">
+  <div class="card border rounded shadow mx-auto" style="max-width:900px;">
+    <div class="card-body text-center">
+      <div class="ratio ratio-4x3 mx-auto">
+        <video id="video" autoplay muted playsinline
+               class="w-100 h-100 bg-dark"
+               style="object-fit:cover;"></video>
       </div>
-      <div class="col-12 col-md-6 order-md-2 order-first">
-        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
-          <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/accounts/index/">Menú principal</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Registrar Salida</li>
-          </ol>
-        </nav>
-      </div>
+      <p class="mt-2 text-muted">
+        Presiona <strong>ENTER</strong> para registrar tu salida.
+      </p>
+    </div>
+    <div id="status-container"
+         class="alert alert-warning text-center mt-3"
+         style="max-width:600px; margin:0 auto;">
+      <span id="registro-status">Esperando ENTER…</span>
     </div>
   </div>
-
-  <section class="section">
-    <div class="card border rounded shadow">
-
-      <!-- Selector de cámara -->
-      <div class="card-body">
-        <label for="cameras" class="form-label">Selecciona una cámara:</label>
-        <select id="cameras" class="form-select mb-3"></select>
-      </div>
-
-      <!-- Contenedor 4:3 para el vídeo (sin barras negras) -->
-      <div class="ratio ratio-4x3 overflow-hidden mx-auto"
-           style="max-width:800px;">
-        <video
-          id="video"
-          autoplay
-          muted
-          playsinline
-          class="w-100 h-100"
-          style="
-            object-fit: cover;
-            object-position: center top;
-          "
-        ></video>
-      </div>
-
-      <!-- Recuadro de estado de registro -->
-      <div class="card-footer">
-        <div class="border rounded p-3 text-center">
-          <span class="fw-bold">Estado de registro:</span>
-          <span id="registro-status">No registrado</span>
-        </div>
-      </div>
-
-    </div>
-  </section>
-</div>
+</section>
 {% endblock %}
 
 {% block extra_scripts %}
-  <script src="{% static 'mazer/assets/js/camara.js' %}" defer></script>
+  <script defer src="{% static 'mazer/assets/js/camara_salida.js' %}"></script>
 {% endblock %}

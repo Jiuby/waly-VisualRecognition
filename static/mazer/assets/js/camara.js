@@ -1,94 +1,108 @@
 // static/mazer/assets/js/camara.js
-// Cuenta atrás de 5 s. Si hay rostro al llegar a 0, envía el fotograma
-// a /recognition/verify-face/ .  No hay botones.
+// Flujo unificado: entrada vs salida según data-mode en <div class="page-heading" data-mode="entrada|salida">
 
-console.log('▶️ camara.js cargado');
+document.addEventListener("DOMContentLoaded", async () => {
+  const videoEl    = document.getElementById("video");
+  const statusBox  = document.getElementById("status-container");
+  const statusSpan = document.getElementById("registro-status");
+  const headingDiv = document.querySelector(".page-heading");
+  const mode       = headingDiv?.dataset.mode || "entrada";
+  const enterText  = mode === "entrada"
+                     ? "ENTER para verificar"
+                     : "ENTER para registrar salida";
+  const successMsg = mode === "entrada"
+                     ? name => `Bienvenido: ${name} — Usuario registrado`
+                     : name => `Hasta luego: ${name} — Salida registrada`;
 
-document.addEventListener('DOMContentLoaded', async () => {
-  const video  = document.getElementById('video');
-  const select = document.getElementById('cams');
-  const cdDom  = document.getElementById('cd');
-  const stat   = document.getElementById('status');
+  // Helper: actualizar recuadro de estado
+  function update(type, msg) {
+    statusBox.className = `alert alert-${type} text-center mt-3`;
+    statusSpan.textContent = msg;
+  }
 
-  /* 1 – Abrir webcam */
-  const cams = (await navigator.mediaDevices.enumerateDevices())
-               .filter(d => d.kind === 'videoinput');
-  if (!cams.length) { stat.textContent = '❌ No hay cámara'; return; }
+  // Helper: CSRF token
+  function getCookie(name) {
+    const match = document.cookie.match(new RegExp('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)'));
+    return match ? match.pop() : '';
+  }
 
-  select.innerHTML = cams.map(
-    (c,i)=>`<option value="${c.deviceId}">${c.label||'Cam '+(i+1)}</option>`).join('');
-  select.onchange = () => startStream(select.value);
-  await startStream(cams[0].deviceId);
+  // 1) Iniciar cámara
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    videoEl.srcObject = stream;
+    await videoEl.play();
+    update("warning", `Cámara iniciada. Presiona ${enterText}.`);
+  } catch (err) {
+    console.error(err);
+    return update("danger", "No se pudo acceder a la cámara");
+  }
 
-  /* 2 – Cargar modelo de rostro */
-  const faceModel = await faceLandmarksDetection.load(
-    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
+  // 2) Al pulsar ENTER
+  document.addEventListener("keydown", async e => {
+    if (e.key !== "Enter") return;
+    update("info", "Capturando foto…");
 
-  /* 3 – Contador + lógica en un solo setInterval */
-  let counter = 5;
-  cdDom.textContent = counter;
+    // Crear snapshot
+    const canvas = document.createElement("canvas");
+    canvas.width  = videoEl.videoWidth;
+    canvas.height = videoEl.videoHeight;
+    canvas.getContext("2d").drawImage(videoEl, 0, 0);
 
-  setInterval(async () => {
-    counter--;
-    cdDom.textContent = counter;
+    canvas.toBlob(async blob => {
+      update("warning", "Verificando rostro…");
 
-    if (counter > 0) return;          // aún no toca
+      // 2.1) Enviar snapshot para reconocimiento
+      const fd = new FormData();
+      fd.append("snapshot", blob, "snapshot.png");
 
-    counter = 5;                      // reiniciar YA el contador
-    cdDom.textContent = counter;
+      try {
+        // Llamada al endpoint de reconocimiento facial
+        const resp = await fetch("/recognition/verify-face/", {
+          method: "POST",
+          headers: { "X-CSRFToken": getCookie("csrftoken") },
+          body: fd
+        });
+        const json = await resp.json();
 
-    if (video.readyState < 2) return; // no hay frame
+        if (json.status === "ok") {
+          const fullName = `${json.name} (${json.id})`;
+          update("success", successMsg(fullName));
 
-    const faces = await faceModel.estimateFaces({input: video});
-    if (!faces.length) {
-      stat.className = 'alert alert-warning text-center mt-3 mx-auto';
-      stat.textContent = '⛔ Sin rostro — próxima captura en 5 s';
-      return;
-    }
+          // 2.2) Registrar entrada o salida en Django
+          const endpoint = mode === 'entrada'
+            ? "/accounts/registrar_entrada/"
+            : "/recognition/RegistrarSalida/";
 
-    /* hay rostro → capturar y enviar */
-    stat.className = 'alert alert-info text-center mt-3 mx-auto';
-    stat.textContent = '📤 Enviando…';
+          await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: JSON.stringify({
+              identificacion: json.id,
+              nombre:         json.name,
+              apellido:       json.last_name || "",
+              rol:            json.role    || "visitante",
+              foto_url:       json.foto_url
+            })
+          });
 
-    const canvas = document.createElement('canvas');
-    canvas.width  = video.videoWidth;
-    canvas.height = video.videoHeight;
-    canvas.getContext('2d').drawImage(video, 0, 0);
+          // (Opcional) Recargar la tabla de recientes o la página
+          // window.location.reload();
 
-    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
-    const fd   = new FormData();
-    fd.append('snapshot', blob, 'snap.png');
-
-    try {
-      const resp = await fetch('/recognition/verify-face/', {
-        method : 'POST',
-        headers: { 'X-CSRFToken': getCookie('csrftoken') },
-        body   : fd
-      });
-      const j = await resp.json();
-      console.log('verify-face:', j);
-      if (j.status === 'ok') {
-        stat.className = 'alert alert-success text-center mt-3 mx-auto';
-        stat.textContent = `✅ ${j.name} (${j.id})`;
-      } else {
-        stat.className = 'alert alert-danger text-center mt-3 mx-auto';
-        stat.textContent = '❌ Usuario no en el sistema';
+        } else if (json.status === "unknown") {
+          update("danger", "Usuario no registrado");
+        } else if (json.status === "no_face") {
+          update("warning", "No se detectó rostro");
+        } else {
+          update("danger", "Error inesperado");
+        }
+      } catch (err) {
+        console.error(err);
+        update("danger", "Error de red");
       }
-    } catch (e) {
-      console.error(e);
-      stat.className = 'alert alert-danger text-center mt-3 mx-auto';
-      stat.textContent = '❌ Error al enviar';
-    }
-  }, 1000);
 
-  /* helpers */
-  async function startStream(id){
-    if (window.stream) window.stream.getTracks().forEach(t=>t.stop());
-    window.stream = await navigator.mediaDevices.getUserMedia({
-      video:{deviceId:{exact:id}}, audio:false});
-    video.srcObject = window.stream; await video.play();
-  }
-  function getCookie(n){
-    const m=document.cookie.match('(^|;)\\s*'+n+'=\\s*([^;]+)');return m?m.pop():'';
-  }
+    }, "image/png");
+  });
 });

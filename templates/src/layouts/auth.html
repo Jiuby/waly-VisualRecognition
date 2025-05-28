@@ -1,21 +1,37 @@
+{# templates/auth_base.html #}
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} - {{ web_title }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/bootstrap.css">
-    <link rel="stylesheet" href="assets/vendors/bootstrap-icons/bootstrap-icons.css">
-    <link rel="stylesheet" href="assets/css/app.css">
-    <link rel="stylesheet" href="assets/css/pages/auth.css">
-</head>
+    <title>{% block title %}{{ title }}{% endblock %} — {{ web_title }}</title>
+    <link rel="icon" href="{% static 'mazer/assets/images/walylogo.png' %}" type="image/x-icon">
 
+    {# CSRF token for AJAX requests #}
+
+    {# Google Fonts #}
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    {# Core CSS #}
+    <link rel="stylesheet" href="{% static 'mazer/assets/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'mazer/assets/vendors/bootstrap-icons/bootstrap-icons.css' %}">
+    <link rel="stylesheet" href="{% static 'mazer/assets/css/app.css' %}">
+
+    {# Page-specific styles #}
+    {% block extra_css %}{% endblock %}
+</head>
 <body>
     <div id="auth">
         {% block content %}{% endblock %}
     </div>
-</body>
 
+    {# Core JS (if any needed) #}
+    <script src="{% static 'mazer/assets/vendors/jquery/jquery.min.js' %}"></script>
+    <script src="{% static 'mazer/assets/js/bootstrap.bundle.min.js' %}"></script>
+
+    {# Page-specific scripts #}
+    {% block extra_js %}{% endblock %}
+</body>
 </html>

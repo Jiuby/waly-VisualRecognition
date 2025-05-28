@@ -1,0 +1,122 @@
+{% extends 'src/layouts/master.html' %}
+{% load static %}
+
+{% block content %}
+<div class="page-heading">
+  <div class="page-title">
+    <div class="row">
+      <div class="col-12 col-md-6 order-md-1 order-last">
+        <h3>Registrar Usuario</h3>
+        <p class="text-subtitle text-muted">Complete los datos del nuevo usuario</p>
+      </div>
+      <div class="col-12 col-md-6 order-md-2 order-first">
+        <nav aria-label="breadcrumb" class="breadcrumb-header float-start float-lg-end">
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="/dashboard/">Dashboard</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Registrar Usuario</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+  </div>
+  <section class="section">
+    <div class="card">
+      <div class="card-header">
+        <h4 class="card-title">Formulario de Usuario</h4>
+      </div>
+      <div class="card-body">
+        <form action="" method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row">
+            <!-- Nombre -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="first-name">Nombre</label>
+                <input type="text" id="first-name" name="nombre" class="form-control" placeholder="Ingrese nombre" required>
+              </div>
+            </div>
+            <!-- Apellido -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="last-name">Apellido</label>
+                <input type="text" id="last-name" name="apellido" class="form-control" placeholder="Ingrese apellido" required>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <!-- Identificación -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="identificacion">Identificación</label>
+                <input type="text" id="identificacion" name="identificacion" class="form-control" placeholder="Número de identificación" required>
+              </div>
+            </div>
+            <!-- Rol Select -->
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="rol">Rol</label>
+                <select id="rol" name="rol" class="form-select" required>
+                  <option value="">Seleccione un rol</option>
+                  <option value="estudiante">Estudiante</option>
+                  <option value="docente">Docente</option>
+                  <option value="administrativo">Administrativo</option>
+                  <option value="administrativo">Personal operativo</option>
+                 <option value="administrativo">Visitante</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <!-- Captura vía cámara -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label>Capturar foto con cámara</label>
+                <div class="d-flex align-items-start mb-2">
+                  <video id="video" width="300" autoplay playsinline class="border rounded"></video>
+                  <img id="preview" width="300" class="border rounded ms-3" style="display:none;" alt="Vista previa" />
+                </div>
+                <button type="button" id="capture-btn" class="btn btn-outline-secondary">Tomar Foto</button>
+                <input type="hidden" id="foto_camara" name="foto_camara">
+              </div>
+            </div>
+          </div>
+          <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+            <a href="/dashboard/" class="btn btn-light">Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  const video = document.getElementById('video');
+  const preview = document.getElementById('preview');
+  const captureBtn = document.getElementById('capture-btn');
+  const fotoInput = document.getElementById('foto_camara');
+  
+  navigator.mediaDevices.getUserMedia({ video: true })
+    .then(stream => { video.srcObject = stream; })
+    .catch(err => console.error('Error accesando cámara:', err));
+
+  captureBtn.addEventListener('click', () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    canvas.toBlob(blob => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        fotoInput.value = reader.result;
+        preview.src = reader.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(blob);
+    }, 'image/jpeg');
+  });
+</script>
+{% endblock %}
