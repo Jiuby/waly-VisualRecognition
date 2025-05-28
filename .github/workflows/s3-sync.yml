@@ -36,11 +36,11 @@ jobs:
       - name: Convert notebook to script
         run: |
           conda run -n regen-env jupyter nbconvert --to script \
-            facialRecognition/regen_embeddings.ipynb --output regen_embeddings
+            facialRecognition/entrenamiento_guardado.ipynb --output regen_embeddings
 
-      - name: Run embeddings regeneration
+      - name: Run entrenamiento_guardado
         run: |
-          conda run -n regen-env python regen_embeddings.py
+          conda run -n regen-env python entrenamiento_guardados.py
 
       - name: Verify upload to S3
         run: |
