@@ -1,4 +1,4 @@
-```yaml
+
 # .github/workflows/regen_embeddings.yml
 name: Regenerar Embeddings
 
