@@ -3,8 +3,6 @@ name: Regenerar Embeddings
 
 # ❶  Ejecuta cada día a las 02 AM Bogotá (07 UTC) y permite disparo manual
 on:
-  schedule:
-    - cron: "0 7 * * *"
   workflow_dispatch:
 
 jobs:
